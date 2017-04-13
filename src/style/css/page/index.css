@@ -1,0 +1,12 @@
+@charset "UTF-8";
+
+.index-body{
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    top:48px;
+    bottom:0px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    background-color: #ffffff;
+}

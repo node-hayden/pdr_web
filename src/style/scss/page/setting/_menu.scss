@@ -1,0 +1,60 @@
+
+$origin_left: 10px;
+$first_width: 240px;
+
+$detail_left: $origin_left*2+$first_width;
+
+$tree_button_height: 40px;
+
+.st_menu {
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: 10px;
+  right: 10px;
+}
+
+.st_menu_tree {
+  @extend .st_menu;
+  width: $first_width;
+  right: auto;
+}
+
+.st_menu_detail {
+  @extend .st_menu;
+  left: $detail_left;
+  right: 10px;
+  overflow: scroll;
+}
+
+.st_menu_detail_card {
+  position: absolute;
+  top:0px;
+  right: 10px;
+  bottom: 10px;
+  left: 0px;
+}
+
+
+.st_menu_tree_content{
+  position: absolute;
+  top: 0px;
+  bottom: $tree_button_height;
+  left: 0px;
+  right: 0px;
+  overflow: scroll;
+}
+
+.st_menu_tree_bc {
+  position: absolute;
+  height: $tree_button_height;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+}
+
+.st_menu_edit_row {
+  height: 55px;
+  line-height: 55px;
+  border-bottom: 1px solid #eeeeee;
+}
