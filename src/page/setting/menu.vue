@@ -13,7 +13,7 @@
             </div>
             <div class="st_menu_tree_bc">
                 <el-button type="primary" style="width: 110px" @click="onAddMenu">新增菜单</el-button>
-                <el-button :disabled="!dSelected" style="width: 110px">删除菜单</el-button>
+                <el-button :disabled="!dSelected" style="width: 110px" @click="onDel">删除菜单</el-button>
             </div>
         </div>
         <div class="st_menu_detail">
@@ -26,7 +26,9 @@
                     <legend><span style="font-size: 16px; color: blue">一级菜单</span></legend>
                     <div style="color: #777777">
                         <span>名称：</span>
-                        <el-input type="text" style="width: 150px" :value="dSelectedFirst.name" v-model="dSelectedFirst.name"></el-input>
+                        <el-input type="text" style="width: 150px"
+                                  :disabled="!dAddMode"
+                                  :value="dSelectedFirst.name" v-model="dSelectedFirst.name"></el-input>
                         <span style="margin-left: 20px">显示：</span>
                         <el-input type="text" style="width: 150px" :value="dSelectedFirst.caption" v-model="dSelectedFirst.caption"></el-input>
                     </div>
@@ -38,7 +40,9 @@
                     <legend style="margin-top: 15px"><span style="font-size: 16px; color: blue">二级菜单</span></legend>
                     <div style="color: #777777">
                         <span>名称：</span>
-                        <el-input type="text" style="width: 150px" :value="dSelectedSecond.name" v-model="dSelectedSecond.name"></el-input>
+                        <el-input type="text" style="width: 150px"
+                                  :disabled="!dAddMode"
+                                  :value="dSelectedSecond.name" v-model="dSelectedSecond.name"></el-input>
                         <span style="margin-left: 20px">显示：</span>
                         <el-input type="text" style="width: 150px" :value="dSelectedSecond.caption" v-model="dSelectedSecond.caption"></el-input>
                     </div>
@@ -112,19 +116,71 @@
                 console.log(this.dSelectedFirst)
                 var v = this
                 var vp = this.$parent
+                v.$util.trimObj(v.dSelectedFirst)
+                v.$util.trimObj(v.dSelectedSecond)
+                var msg = v.__funcVerifyParam()
+                if (msg != "") {
+                    vp.onToast("提示", msg, "red")
+                    return
+                }
+
+                v.dSelectedSecond.role = v.$util.intify(v.dSelectedRole)
+                v.dSelectedFirst.order = v.$util.intify(v.dSelectedFirst.order, 999)
+                v.dSelectedSecond.order = v.$util.intify(v.dSelectedSecond.order, 999)
+
                 var path = "/api/menu/"
                 path += v.dAddMode ? "add" : "update"
                 var operate = v.dAddMode ? "增加" : "修改"
                 var param = v.dSelectedFirst
-                v.dSelectedSecond.role = parseInt(v.dSelectedRole)
                 param.sub_menus = [v.dSelectedSecond]
                 vp.postApi(path, param, true, function (data) {
                     if (data && data.errno == 0) {
                         vp.onToast("提示", operate+"菜单成功!")
                         v.getMenuData()
+                        if (v.dAddMode) {
+                            v.dSelectedSecond = {}
+                            v.dSelectedFirst = {}
+                        }
+                    } else {
+                        vp.onToast("提示", operate+"菜单失败， 原因:"+data.msg, "red")
                     }
                 }, function (status, msg) {
+                    vp.onToast("提示", status+":"+msg, "red")
+                })
+            },
+            onDel: function () {
+                var v = this
+                var vp = this.$parent
+                var param = {}
+                if (v.dSelectedFirst.name && v.dSelectedSecond.name) {
+                    param.first = v.dSelectedFirst.name
+                    param.second = v.dSelectedSecond.name
+                } else {
+                    vp.onToast("提示", "没有选择菜单！", "red")
+                    return
+                }
+                vp.$confirm('确定删除菜单['+param.first+"-"+param.second+"]?", '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    v.doDel(param)
+                }).catch(() => {
 
+                });
+            },
+            doDel:function (param) {
+                var v = this
+                var vp = this.$parent
+                vp.getApi("/api/menu/del", param, true, function (data) {
+                    if (data && data.errno == 0){
+                        v.getMenuData()
+                        vp.onToast("提示", "删除菜单成功!")
+                    } else {
+                        vp.onToast("提示", data && data.msg ? data.msg : "未知错误！", "red")
+                    }
+                }, function (status, msg) {
+                    vp.onToast("提示", status + ":" + msg, "red")
                 })
             },
             getRoles: function () {
@@ -133,7 +189,6 @@
                 vp.getApi("/api/user/roles", {}, true, function (data) {
                     if (data && data.errno == 0 && data.role) {
                         v.dRole = data.role
-                        console.log(data)
                     }
                 }, function (status, msg) {
 
@@ -194,6 +249,27 @@
                     }
                 }
             },
+            __funcVerifyParam(){
+                var first = this.dSelectedFirst
+                var second = this.dSelectedSecond
+                if (!first || !second) {
+                    return "没有菜单信息!"
+                }
+                if (!first.name || first.name == "") {
+                    return "没有设置一级菜单名称!"
+                }
+                if (!first.caption || first.caption == "") {
+                    return "没有设置一级菜单显示名称!"
+                }
+
+                if (!second.name || second.name == "") {
+                    return "没有设置二级菜单名称!"
+                }
+                if (!second.caption || second.caption == "") {
+                    return "没有设置二级菜单显示名称!"
+                }
+                return ""
+            }
         }
     };
 </script>

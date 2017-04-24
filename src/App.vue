@@ -1,6 +1,8 @@
 <template>
-    <div>
-        <topbar></topbar>
+    <div v-loading.fullscreen.lock="showLoading">
+        <!-- 顶部导航栏 -->
+        <m-topbar :refreshData="refreshTopbar"></m-topbar>
+        <!-- 路由容器 -->
         <div class="index-body">
             <router-view
                     class="view"
@@ -9,33 +11,27 @@
                     transition-mode="out-in">
             </router-view>
         </div>
-        <login-view v-if=showLogin></login-view>
-        <loader-view v-if=showLoader></loader-view>
     </div>
 </template>
 
 <script>
-    import Topbar from './comp/topbar.vue'
-    import LoderView from './comp/loader.vue'
-    import LoginView from './comp/login.vue'
+    import MyTopBar from './comp/topbar.vue'
     export default {
         created(){
-
         },
         data: function () {
             return {
                 "requestCount": 0,
                 "showLogin": false,
+                "refreshTopbar": false,
                 dLoginCallback: null
             }
         },
         components: {
-            "topbar":Topbar,
-            "loader-view": LoderView,
-            "login-view": LoginView
+            "m-topbar":MyTopBar
         },
         computed: {
-            showLoader: function () {
+            showLoading: function () {
                 return this.requestCount > 0
             }
         },
@@ -43,34 +39,25 @@
             onGoto:function (path) {
                 this.$router.push({path:path})
             },
-            onCloseLogin:function (user) {
-                this.showLogin = false
-                if (user && this.dLoginCallback != null) {
-                    var t = typeof this.dLoginCallback
-                    if (t == 'function'){
-                        this.dLoginCallback(user)
-                    }
-                }
-                this.dLoginCallback = null
-            },
-            onShowLogin:function (callback) {
-                this.showLogin = true
-                this.dLoginCallback = callback
+            onRefreshTopbar: function () {
+                var v = this
+                var aDate = new Date();
+                v.refreshTopbar = aDate.getTime()
             },
             getApi: function (url, params, showLoader, success, failure) {
                 var v = this
                 if (showLoader) {
-                    v.$api.get(url, params, v.__packingSuccess(success), failure, v.__before, v.__complete)
+                    v.$api.get(url, params, v.__packingSuccess(success, url), failure, v.__before, v.__complete)
                 } else {
-                    v.$api.get(url, params, v.__packingSuccess(success), failure)
+                    v.$api.get(url, params, v.__packingSuccess(success, url), failure)
                 }
             },
             postApi: function (url, params, showLoader, success, failure) {
                 var v = this
                 if (showLoader) {
-                    v.$api.post(url, params, v.__packingSuccess(success), failure, v.__before, v.__complete)
+                    v.$api.post(url, params, v.__packingSuccess(success, url), failure, v.__before, v.__complete)
                 } else {
-                    v.$api.post(url, params, v.__packingSuccess(success), failure)
+                    v.$api.post(url, params, v.__packingSuccess(success, url), failure)
                 }
             },
             onToast:function (title, detail, color) {
@@ -81,19 +68,21 @@
                     message: h('p', { style: 'color: '+colorNew}, detail)
                 });
             },
+
+            // Private
             __before: function () {
                 this.requestCount ++
             },
             __complete: function () {
                 this.requestCount --
             },
-            __packingSuccess: function (success) {
+            __packingSuccess: function (success, url) {
                 var v = this
                 return function (data) {
-                    if (data.errno == 200) {
+                    if (data && data.errno == 200 && url!="/api/user" && url!="/api/menu")  {
                         v.onGoto("/")
-                    }
-                    if (success) {
+                        v.onRefreshTopbar()
+                    } else if (success) {
                         success(data)
                     }
                 }
@@ -108,5 +97,4 @@
 
 <style lang="css">
     @import "./style/css/base.css";
-    @import "./style/css/page/index.css";
 </style>
