@@ -24,7 +24,3 @@
         }
     }
 </script>
-
-<style lang="css">
-    @import "../style/css/comp/mask.css";
-</style>

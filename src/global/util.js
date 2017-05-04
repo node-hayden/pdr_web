@@ -2,8 +2,9 @@ const crypto = require('crypto');
 
 var role_map = {
     "9": "Agent",
-    "2": "Admin",
-    "1": "Developer",
+    "3": "Admin",
+    "2": "Developer",
+    "1": "Viewer",
     "0": "Unknown"
 }
 
@@ -13,6 +14,23 @@ var roleName = function(id) {
         role = "Unknown"
     }
     return role
+}
+
+var roleList = function (exclude) {
+    var list = []
+    for(var key in role_map) {
+        var item = {}
+        item.role = intify(key, 0)
+        if (exclude && arrayContains(exclude, item.role)) {
+            continue
+        }
+        item.roleName = role_map[key]
+        list.push(item)
+    }
+    list.sort(function (a, b) {
+        return a.role - b.role
+    })
+    return list
 }
 
 var md5 = function (str) {
@@ -33,12 +51,17 @@ var deepCopy = function (obj, exclude) {
     if (typeof obj != 'object') {
         return obj;
     }
-    var newobj = {};
+    var isArray = obj instanceof Array
+    var newobj = isArray ? [] : {};
     for (var attr in obj) {
-        if (arrayContains(exclude, attr)) {
+        if (!isArray && exclude && arrayContains(exclude, attr)) {
             continue
         }
-        newobj[attr] = deepCopy(obj[attr]);
+        if (isArray) {
+            newobj.push(deepCopy(obj[attr]))
+        }else {
+            newobj[attr] = deepCopy(obj[attr]);
+        }
     }
     return newobj;
 }
@@ -93,4 +116,5 @@ export default {
     trimObj: trimObj,
     intify: intify,
     roleName: roleName,
+    roleList: roleList,
 }

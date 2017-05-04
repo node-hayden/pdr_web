@@ -1,0 +1,17 @@
+
+$team_h_left_width: 600px;
+$team_h_operate_height: 54px;
+
+.team_h_operate {
+  height: $team_h_operate_height;
+  line-height: $team_h_operate_height;
+  padding: 0px 10px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  box-shadow: 1px 1px 2px #dddddd;
+}
+
+.team_h_left {
+  margin-top: 6px;
+  background-color: #cccccc;
+}
