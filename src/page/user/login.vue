@@ -38,34 +38,24 @@
         },
         methods: {
             onRegister:function () {
-                this.$parent.onGoto("/user/register")
+                this.$pdr.goto("/user/register")
             },
             onForget:function () {
                 alert("未实现")
             },
             onLogin:function () {
-                var v = this
-                var vp = this.$parent
-                var msg = v.__funcCheckParam()
+                var msg = this.__funcCheckParam()
                 if (msg != "") {
-                    vp.onToast("提示", msg, "red")
+                    this.$pdr.toastError(msg)
                     return
                 }
                 var param={}
-                param.account = v.dUser.account
-                param.password = v.$util.md5(v.dUser.password)
-                vp.postApi("/api/user/login", param, true, function (data) {
-                    if (data && data.errno == 0) {
-                        vp.onRefreshTopbar()
-                        vp.onGoto("/")
-                    } else if (data.msg){
-                        vp.onToast("提示", data.msg, "red")
-                    } else {
-                        vp.onToast("提示", "登录失败！", "red")
-                    }
-                }, function (status, msg) {
-                    vp.onToast("提示", "登录失败！Status:"+status+" Message:"+msg, "red")
-                })
+                param.account = this.dUser.account
+                param.password = this.$util.md5(this.dUser.password)
+                this.$pdr.POST("/api/user/login", param, true, "登录").success(()=>{
+                    this.$pdr.ROOT().onRefreshTopbar()
+                    this.$pdr.goto("/")
+                }).go()
             },
             __funcCheckParam: function () {
                 var aUser = this.dUser

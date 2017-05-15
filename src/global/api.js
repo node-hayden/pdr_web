@@ -83,6 +83,9 @@ function _api_base(method, url, params, success, failure, beforeSend, complete) 
 
 // 返回在vue模板中的调用接口
 export default {
+    req: function (path, params, method, success, failure, beforeSend, complete) {
+        _api_base(method, root + path, params, success, failure, beforeSend, complete)
+    },
     get: function (url, params, success, failure, beforeSend, complete) {
         _api_base('GET', root + url, params, success, failure, beforeSend, complete)
     },

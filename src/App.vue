@@ -18,6 +18,7 @@
     import MyTopBar from './comp/topbar.vue'
     export default {
         created(){
+            this.$pdr.registerRoot(this)
         },
         data: function () {
             return {

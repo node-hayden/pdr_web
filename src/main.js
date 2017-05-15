@@ -5,6 +5,7 @@ import VueRouter from 'vue-router'
 import routes from './global/router'
 import api from './global/api'
 import uitl from './global/util'
+import pdr from './global/pdr'
 import routemap from './global/route_map'
 import ElementUI from 'element-ui'
 
@@ -19,7 +20,7 @@ Vue.use(VueRouter)
 Vue.prototype.$api = api
 Vue.prototype.$util = uitl
 Vue.prototype.$rmp = routemap
-// Vue.prototype.$app = App.methods
+Vue.prototype.$pdr = pdr
 
 new Vue({
     router,
