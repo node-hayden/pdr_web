@@ -64,8 +64,8 @@
                 if (obj) {
                     for (var i in this.dTeams) {
                         var team = this.dTeams[i]
-                        if (team.name == obj) {
-                            this.dSelTeamItem = this.$util.deepCopy(team)
+                        if (teammgr.name == obj) {
+                            this.dSelTeamItem = this.$util.deepCopy(teammgr)
                         }
                     }
                 }

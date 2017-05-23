@@ -33,6 +33,20 @@ var roleList = function (exclude) {
     return list
 }
 
+var obj2Json = function (data,space){
+    var seen=[];
+    return JSON.stringify(data, function(key,val){
+        if(!val||typeof val !=='object'){
+            return val;
+        }
+        if(seen.indexOf(val)!==-1){
+            return '[Circular]';
+        }
+        seen.push(val);
+        return val;
+    }, space);
+}
+
 var md5 = function (str) {
     var md5 = crypto.createHash('md5');
     md5.update(str);
@@ -40,7 +54,7 @@ var md5 = function (str) {
 }
 
 var arrayContains = function (arr, ele) {
-    if (!arr || !ele) return false
+    if (!arr || !(arr instanceof Array)) return false
     for (var i in arr) {
         if (arr[i] == ele) return true;
     }
@@ -117,4 +131,5 @@ export default {
     intify: intify,
     roleName: roleName,
     roleList: roleList,
+    obj2Json: obj2Json,
 }

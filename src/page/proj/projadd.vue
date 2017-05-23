@@ -2,10 +2,10 @@
     <div style="padding: 10px">
         <el-card class="box-card">
             <div slot="header">
-                <div style="font-size: 17px; text-align: center">新增项目</div>
-                <el-button style="float: right"
+                <el-button style="float: right;"
                            type="text"
-                           @click="onProjMgr">项目管理</el-button>
+                           @click="onProjMgr">返回项目管理</el-button>
+                <div style="font-size: 17px; text-align: center; clear: right">新增项目</div>
             </div>
 
             <m-proj-editor :mode=0

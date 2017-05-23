@@ -1,65 +1,124 @@
 <template>
     <div>
-        <div class="st_menu_tree">
-            <div class="st_menu_tree_content">
-                <el-tree :data="tree"
-                         :props="defaultProps"
-                         @node-click="onMenuClick"
-                         empty-text="暂无菜单数据"
-                         node-key="node_key"
-                         :highlight-current=true>
-
-                </el-tree>
+        <div class="st_menu_opc">
+            <div class="st_menu_op">
+                <el-row :gutter="10">
+                    <el-col :span="12">
+                        <el-dropdown style="width: 100%" @command="onAdd">
+                            <el-button type="primary" size="small"
+                                       style="width: 100%">
+                                新增菜单<i class="el-icon-caret-bottom el-icon--right"></i>
+                            </el-button>
+                            <el-dropdown-menu slot="dropdown">
+                                <el-dropdown-item command="1">一级菜单</el-dropdown-item>
+                                <el-dropdown-item command="2" :disabled="dFirst.selected==''">二级菜单</el-dropdown-item>
+                            </el-dropdown-menu>
+                        </el-dropdown>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-dropdown style="width: 100%" @command="onDel">
+                            <el-button type="danger"
+                                       size="small"
+                                       style="width: 100%"
+                                       :disabled="dAddMode">
+                                删除选中<i class="el-icon-caret-bottom el-icon--right"></i>
+                            </el-button>
+                            <el-dropdown-menu slot="dropdown">
+                                <el-dropdown-item command="1" :disabled="dFirst.selected==''">
+                                    一级菜单:{{dFirst.sel!=null?dFirst.sel.caption:''}}
+                                </el-dropdown-item>
+                                <el-dropdown-item command="2" :disabled="dSecond.selected==''">
+                                    二级菜单:{{dSecond.sel!=null?dSecond.sel.caption:''}}
+                                </el-dropdown-item>
+                            </el-dropdown-menu>
+                        </el-dropdown>
+                    </el-col>
+                </el-row>
             </div>
-            <div class="st_menu_tree_bc">
-                <el-button type="primary" style="width: 110px" @click="onAddMenu">新增菜单</el-button>
-                <el-button :disabled="!dSelected" style="width: 110px" @click="onDel">删除菜单</el-button>
+            <div style="margin-top: 10px">
+                <el-tree :data="dMenu.menus" :props="dMenu.props" @node-click="onMenuClick"></el-tree>
             </div>
         </div>
-        <div class="st_menu_detail">
-            <el-card class="st_menu_detail_card">
-                <div slot="header">
-                    <span style="line-height: 24px; font-size: 17px">菜单设置{{cTitle}}</span>
-                    <el-button style="float: right; margin-top: 0px" type="primary" @click="onSubmit">提交</el-button>
-                </div>
-                <fieldset>
-                    <legend><span style="font-size: 16px; color: blue">一级菜单</span></legend>
-                    <div style="color: #777777">
-                        <span>名称：</span>
-                        <el-input type="text" style="width: 150px"
-                                  :disabled="!dAddMode"
-                                  :value="dSelectedFirst.name" v-model="dSelectedFirst.name"></el-input>
-                        <span style="margin-left: 20px">显示：</span>
-                        <el-input type="text" style="width: 150px" :value="dSelectedFirst.caption" v-model="dSelectedFirst.caption"></el-input>
-                    </div>
-                    <div style="margin-top: 15px; height: 40px; line-height: 40px;color: #777777">
-                        <span>排序：</span>
-                        <el-input type="text" style="width: 150px" :value="dSelectedFirst.order" v-model="dSelectedFirst.order"></el-input>
-                    </div>
 
-                    <legend style="margin-top: 15px"><span style="font-size: 16px; color: blue">二级菜单</span></legend>
-                    <div style="color: #777777">
-                        <span>名称：</span>
-                        <el-input type="text" style="width: 150px"
-                                  :disabled="!dAddMode"
-                                  :value="dSelectedSecond.name" v-model="dSelectedSecond.name"></el-input>
-                        <span style="margin-left: 20px">显示：</span>
-                        <el-input type="text" style="width: 150px" :value="dSelectedSecond.caption" v-model="dSelectedSecond.caption"></el-input>
+        <div class="st_menu_cc">
+            <el-row :gutter="10">
+                <el-col :span="12">
+                    <div class="st_menu_content" v-if="dFirst.show">
+                        <div class="st_menu_content_title">
+                            一级菜单
+                        </div>
+                        <div style="margin: 0px 10px">
+                            <el-form label-width="80px">
+                                <el-form-item label="显示名称">
+                                    <el-input size="small"
+                                              :disabled="!dFirst.edit"
+                                              v-model="dFirst.sel.caption"></el-input>
+                                </el-form-item>
+                                <el-form-item label="菜单名称">
+                                    <el-input size="small"
+                                              :disabled="!dAddMode || !dFirst.edit"
+                                              v-model="dFirst.sel.name"></el-input>
+                                </el-form-item>
+                                <el-form-item label="排序编码">
+                                    <el-input-number size="small"
+                                                     :min="1"
+                                                     :disabled="!dFirst.edit"
+                                                     v-model="dFirst.sel.order"></el-input-number>
+                                </el-form-item>
+                                <el-form-item label="" v-if="dFirst.edit">
+                                    <el-button size="small"
+                                               style="width: 100px"
+                                               @click="onFirstChange"
+                                               type="primary">
+                                        {{dAddMode?'添加':'修改'}}
+                                    </el-button>
+                                </el-form-item>
+                            </el-form>
+                        </div>
+
                     </div>
-                    <div style="margin-top: 15px;color: #777777">
-                        <span>排序：</span>
-                        <el-input type="text" style="width: 150px" :value="dSelectedSecond.order" v-model="dSelectedSecond.order"></el-input>
-                        <span style="margin-left: 20px">角色：</span>
-                        <el-select v-model="dSelectedRole" placeholder="请选择" style="width: 150px">
-                            <el-option
-                                    v-for="item in dRole"
-                                    :label="item.role_name"
-                                    :value="item.role_value">
-                            </el-option>
-                        </el-select>
+                </el-col>
+                <el-col :span="12">
+                    <div class="st_menu_content" v-if="dSecond.show">
+                        <div class="st_menu_content_title">
+                            二级菜单
+                        </div>
+                        <div style="margin: 0px 10px">
+                            <el-form label-width="80px">
+                                <el-form-item label="显示名称">
+                                    <el-input size="small" v-model="dSecond.sel.caption"></el-input>
+                                </el-form-item>
+                                <el-form-item label="菜单名称">
+                                    <el-input size="small" :disabled="!dAddMode" v-model="dSecond.sel.name"></el-input>
+                                </el-form-item>
+                                <el-form-item label="排序编码">
+                                    <el-input-number size="small" :min="1" v-model="dSecond.sel.order"></el-input-number>
+                                </el-form-item>
+                                <el-form-item label="角色设置">
+                                    <el-select v-model="dSecond.sel.role"
+                                               style="width: 100%"
+                                               placeholder="请选择角色">
+                                        <el-option
+                                                v-for="item in dRoles"
+                                                :key="item.role"
+                                                :label="item.roleName"
+                                                :value="item.role">
+                                        </el-option>
+                                    </el-select>
+                                </el-form-item>
+                                <el-form-item label="" v-if="dSecond.edit">
+                                    <el-button size="small"
+                                               style="width: 100px"
+                                               @click="onSecondChange"
+                                               type="primary">
+                                        {{dAddMode?'添加':'修改'}}
+                                    </el-button>
+                                </el-form-item>
+                            </el-form>
+                        </div>
                     </div>
-                </fieldset>
-            </el-card>
+                </el-col>
+            </el-row>
         </div>
     </div>
 </template>
@@ -67,209 +126,268 @@
 <script>
     export default {
         created(){
-            this.getRoles()
-            this.getMenuData()
+            this.getMenus()
+            this.dRoles = this.$util.roleList([0])
         },
         data() {
             return {
-                tree: [],
-                dRole: [],
-                defaultProps: {
-                    children: 'sub_menus',
-                    label: 'caption'
+
+                dRoles:null,
+
+                dMenu:{
+                    menus: [],
+                    props:{
+                        label:"caption",
+                        children:"sub_menus"
+                    },
+                    loading:false
                 },
-                dSelectedFirst: {},
-                dSelectedSecond: {},
-                dSelected: false,
-                dAddMode: false,
-                dSelectedRole: ''
+
+                dFirst:{
+                    selected:"",
+                    sel:null,
+                    edit: false,
+                    show:false
+                },
+
+                dSecond:{
+                    selected:"",
+                    sel:null,
+                    edit: false,
+                    show:false
+                },
+
+                dAddMode:true,
             };
         },
         computed: {
-            cTitle:function () {
-                var v = this
-                if (v.dAddMode) {
-                    return "-新增"
-                }
-                var title = ""
-                if (v.dSelectedFirst && v.dSelectedFirst.caption) {
-                    title += ("-"+v.dSelectedFirst.caption)
-                }
-                if (v.dSelectedSecond && v.dSelectedSecond.caption) {
-                    title += ("-"+v.dSelectedSecond.caption)
-                }
-                return title
-            }
+
         },
         methods: {
-            onMenuClick(data) {
-                this.__funcSetCurrentMenu(data.node_key)
-            },
-            onAddMenu:function () {
-                this.dSelected = false
+            onAdd:function (level) {
+                if (level < 1 || level > 2) return
                 this.dAddMode = true
-                this.dSelectedFirst = {}
-                this.dSelectedSecond = {}
-                this.dSelectedRole = ''
-            },
-            onSubmit:function () {
-                console.log(this.dSelectedFirst)
-                var v = this
-                var vp = this.$parent
-                v.$util.trimObj(v.dSelectedFirst)
-                v.$util.trimObj(v.dSelectedSecond)
-                var msg = v.__funcVerifyParam()
-                if (msg != "") {
-                    vp.onToast("提示", msg, "red")
-                    return
-                }
-
-                v.dSelectedSecond.role = v.$util.intify(v.dSelectedRole)
-                v.dSelectedFirst.order = v.$util.intify(v.dSelectedFirst.order, 999)
-                v.dSelectedSecond.order = v.$util.intify(v.dSelectedSecond.order, 999)
-
-                var path = "/api/menu/"
-                path += v.dAddMode ? "add" : "update"
-                var operate = v.dAddMode ? "增加" : "修改"
-                var param = v.dSelectedFirst
-                param.sub_menus = [v.dSelectedSecond]
-                vp.postApi(path, param, true, function (data) {
-                    if (data && data.errno == 0) {
-                        vp.onToast("提示", operate+"菜单成功!")
-                        v.getMenuData()
-                        if (v.dAddMode) {
-                            v.dSelectedSecond = {}
-                            v.dSelectedFirst = {}
-                        }
-                    } else {
-                        vp.onToast("提示", operate+"菜单失败， 原因:"+data.msg, "red")
+                if (level == 1) {
+                    this.dFirst.sel = {
+                        name:'',
+                        order:1,
+                        caption:''
                     }
-                }, function (status, msg) {
-                    vp.onToast("提示", status+":"+msg, "red")
-                })
-            },
-            onDel: function () {
-                var v = this
-                var vp = this.$parent
-                var param = {}
-                if (v.dSelectedFirst.name && v.dSelectedSecond.name) {
-                    param.first = v.dSelectedFirst.name
-                    param.second = v.dSelectedSecond.name
+                    this.dFirst.selected = ''
+                    this.dFirst.show = true
+                    this.dFirst.edit = true
+
+                    this.dSecond.selected = ''
+                    this.dSecond.sel = null
+                    this.dSecond.show = false
+                    this.dSecond.edit = false
                 } else {
-                    vp.onToast("提示", "没有选择菜单！", "red")
-                    return
+                    this.dFirst.edit = false
+
+                    this.dSecond.selected = ''
+                    this.dSecond.sel = {
+                        name:'',
+                        caption:'',
+                        order:1,
+                        sync:false,
+                        role:1
+                    }
+                    this.dSecond.show = true
+                    this.dSecond.edit = true
                 }
-                vp.$confirm('确定删除菜单['+param.first+"-"+param.second+"]?", '提示', {
+
+
+                if (level == 1) {
+
+
+                } else {
+                    this.dFirst.edit = false
+
+
+                }
+            },
+            onDel:function (level) {
+                var first = this.dFirst.selected
+                var second = level == 2 ? this.dSecond.selected : null
+                var msg = level == 1 ? '确定删除名称为“'+this.dFirst.sel.caption+'”的一级菜单吗？' :
+                    '确定删除一级菜单“'+this.dFirst.sel.caption+'”下的二级菜单“'+this.dSecond.sel.caption+'”吗？'
+                this.$confirm(msg, '请确认', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    v.doDel(param)
-                }).catch(() => {
-
-                });
+                    this.delMenu(first, second)
+                }).catch(() => {})
             },
-            doDel:function (param) {
-                var v = this
-                var vp = this.$parent
-                vp.getApi("/api/menu/del", param, true, function (data) {
-                    if (data && data.errno == 0){
-                        v.getMenuData()
-                        vp.onToast("提示", "删除菜单成功!")
+            onMenuClick:function (data, node) {
+                this.dAddMode = false
+                var level = node.level
+                if (level < 1 || level > 2 ) return
+                var first = level == 1 ? data : node.parent.data
+
+                this.dFirst.sel = {
+                    name:first.name,
+                    order:first.order,
+                    caption:first.caption
+                }
+                this.dFirst.selected = first.name
+                this.dFirst.show = true
+
+                if (level == 1) {
+                    this.dFirst.edit = true
+
+                    this.dSecond.selected = ''
+                    this.dSecond.sel = null
+                    this.dSecond.show = false
+                    this.dSecond.edit = false
+                } else {
+                    this.dFirst.edit = false
+
+                    this.dSecond.selected = data.name
+                    this.dSecond.sel = {
+                        name:data.name,
+                        caption:data.caption,
+                        order:data.order,
+                        sync:data.sync,
+                        role:data.role
+                    }
+                    this.dSecond.show = true
+                    this.dSecond.edit = true
+                }
+            },
+            onFirstChange:function () {
+                var msg = '确认'+(this.dAddMode ? '添加':'修改')+'菜单“'+this.dFirst.sel.caption+'”?'
+                var param = {
+                    caption:this.dFirst.sel.caption,
+                    name:this.dFirst.sel.name,
+                    order:this.dFirst.sel.order
+                }
+                this.$confirm(msg, '请确认', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    if (this.dAddMode) {
+                        this.addMenu(param, 1)
                     } else {
-                        vp.onToast("提示", data && data.msg ? data.msg : "未知错误！", "red")
+                        this.modifyMenu(param, 1)
                     }
-                }, function (status, msg) {
-                    vp.onToast("提示", status + ":" + msg, "red")
-                })
+                }).catch(() => {})
             },
-            getRoles: function () {
-                var v = this
-                var vp = this.$parent
-                vp.getApi("/api/user/roles", {}, true, function (data) {
-                    if (data && data.errno == 0 && data.role) {
-                        v.dRole = data.role
+            onSecondChange:function () {
+                var msg = '确认'+(this.dAddMode ? '添加':'修改')+'菜单“'+this.dFirst.sel.caption+'-'+this.dSecond.sel.caption+'”?'
+                var param = {
+                    name:this.dFirst.sel.name,
+                    sub_menus:[{
+                        name:this.dSecond.sel.name,
+                        caption:this.dSecond.sel.caption,
+                        order:this.dSecond.sel.order,
+                        role:this.dSecond.sel.role,
+                        sync:this.dSecond.sel.sync
+                    }]
+                }
+                this.$confirm(msg, '请确认', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    if (this.dAddMode) {
+                        this.addMenu(param, 2)
+                    } else {
+                        this.modifyMenu(param, 2)
                     }
-                }, function (status, msg) {
+                }).catch(() => {})
+            },
+            
+            // Network
+            getMenus:function () {
+                this.$pdr.GET("/api/menu/all", null, true, "获取菜单").success((data) => {
+                    this.dMenu.menus = data.menu
+                }).failure(() => {
+                    this.dMenu.menus = []
+                }).go()
+            },
+            delMenu:function (first, second) {
+                var param = {first:first}
+                if (second) param.second = second
+                this.$pdr.GET('/api/menu/del', param, true, '删除菜单').success(() => {
+                    this.$pdr.toast("删除菜单成功")
+                    this.getMenus()
+                    this.__funcClearFirst()
+                    this.__funcClearSecond()
+                }).go()
+            },
+            addMenu:function (param, level) {
+                var path = '/api/menu/add?level=' + level
+                this.$pdr.POST(path, param, true, '添加菜单').success(() => {
+                    this.$pdr.toast("添加菜单成功")
+                    this.getMenus()
+                    this.__funcClearFirst()
+                    this.__funcClearSecond()
+                }).go()
+            },
+            modifyMenu:function (param, level) {
+                var path = '/api/menu/update?level=' + level
+                this.$pdr.POST(path, param, true, '修改菜单').success(() => {
+                    this.$pdr.toast("修改菜单成功")
+                    this.getMenus()
+                    this.__funcClearFirst()
+                    this.__funcClearSecond()
+                }).go()
+            },
 
-                })
+            // Private
+            __funcClearFirst:function () {
+                this.dFirst.selected = ''
+                this.dFirst.sel = null
+                this.dFirst.edit = false
+                this.dFirst.show = false
             },
-            getMenuData:function () {
-                var v = this
-                var vp = this.$parent
-                vp.getApi("/api/menu/all", {}, true, function (data) {
-                    if (data && data.errno == 0 && data.menu) {
-                        v.__funcFillNodeKey(data.menu)
-                    }
-                }, function (status, msg) {
-
-                })
-            },
-            __funcFillNodeKey:function (menus) {
-                var v = this
-                menus.forEach(function (first) {
-                    first.node_key = "1_"+first.name
-                    if (!first.sub_menus) {
-                        return
-                    }
-                    first.sub_menus.forEach(function (second) {
-                        second.node_key = "2_"+first.name+"_"+second.name
-                    })
-                })
-                v.tree = menus
-            },
-            __funcSetCurrentMenu: function (key) {
-                var v = this
-                if (!key || key.indexOf("2") != 0){
-                    v.dSelected = false
-                    return
-                }
-                v.dSelected = true
-                var menus = v.tree
-                if (!menus) return
-                var arr = key.split("_")
-                var firstName = arr[1]
-                var secondName = arr[2]
-                for (var i in menus) {
-                    var first = menus[i]
-                    if (first.name != firstName || !first.sub_menus) {
-                        continue
-                    }
-                    for (var j in first.sub_menus) {
-                        var second = first.sub_menus[j]
-                        if (second.name != secondName) {
-                            continue
-                        }
-                        v.dSelectedFirst = v.$util.deepCopy(first, ["sub_menus"])
-                        v.dSelectedSecond = v.$util.deepCopy(second)
-                        v.dAddMode = false
-                        v.dSelected = true
-                        v.dSelectedRole = v.dSelectedSecond.role
-                        return
-                    }
-                }
-            },
-            __funcVerifyParam(){
-                var first = this.dSelectedFirst
-                var second = this.dSelectedSecond
-                if (!first || !second) {
-                    return "没有菜单信息!"
-                }
-                if (!first.name || first.name == "") {
-                    return "没有设置一级菜单名称!"
-                }
-                if (!first.caption || first.caption == "") {
-                    return "没有设置一级菜单显示名称!"
-                }
-
-                if (!second.name || second.name == "") {
-                    return "没有设置二级菜单名称!"
-                }
-                if (!second.caption || second.caption == "") {
-                    return "没有设置二级菜单显示名称!"
-                }
-                return ""
+            __funcClearSecond:function () {
+                this.dSecond.selected = ''
+                this.dSecond.sel = null
+                this.dSecond.edit = false
+                this.dSecond.show = false
             }
         }
     };
 </script>
+
+<style lang="scss">
+    .st_menu_opc {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        width: 260px;
+    }
+
+    .st_menu_cc {
+        position: absolute;
+        top: 10px;
+        left: 280px;
+        right: 10px;
+    }
+
+    .st_menu_op {
+        padding: 15px;
+        border: 1px solid #cccccc;
+        border-radius: 4px;
+    }
+
+    .st_menu_content {
+        height: 360px;
+        border: 1px solid #cccccc;
+        border-radius: 4px;
+    }
+
+    .st_menu_content_title {
+        border-bottom: 1px solid #cccccc;
+        height: 44px;
+        line-height: 44px;
+        text-align: center;
+        font-size: 17px;
+        color: #888888;
+        margin-bottom: 10px;
+    }
+
+</style>

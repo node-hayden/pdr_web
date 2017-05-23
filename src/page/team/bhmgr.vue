@@ -124,7 +124,7 @@
             },
 
             onAdd:function () {
-                this.$pdr.goto('/team/hierarchy')
+                this.$pdr.goto('/team/bhadd')
             },
             onRefresh:function () {
                 this.getBH()

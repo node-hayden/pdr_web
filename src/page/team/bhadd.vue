@@ -264,7 +264,7 @@
                         showCancelButton: false,
                         type: 'success'
                     }).then(() => {
-                        this.$pdr.goto("/")
+                        this.$pdr.goto("/team/bhmgr")
                     })
                 }).fault((data) =>{
                     this.$pdr.toastError("有需待解决的问题！")
