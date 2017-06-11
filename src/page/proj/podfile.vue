@@ -219,7 +219,7 @@
                     project:this.dProj.selected,
                     version:version
                 }
-                console.log(param)
+
                 this.$pdr.POST("/api/podfile/release", param, true, "发布Podfile").success(() => {
                     this.$pdr.toast("发布Podfile成功！")
                     this.getPodfile()

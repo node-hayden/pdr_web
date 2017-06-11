@@ -43,7 +43,6 @@
         methods:{
             // Submit
             onSubmit:function (obj) {
-                console.log("sjdlfjsl")
                 var v = this
                 var vp = this.$parent
                 var msg = this.__funcCheckParam(obj)

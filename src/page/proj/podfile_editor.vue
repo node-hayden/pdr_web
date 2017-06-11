@@ -91,7 +91,7 @@
             <!-- 步骤三 -->
             <div v-if="dActive==2">
                 <el-tabs>
-                    <el-tab-pane v-for="(target, idx) in dTargets" v-if="!target.isEditor" :label="target.name">
+                    <el-tab-pane v-for="(target, idx) in dTargets" v-if="!target.isEditor" :label="target.name" :key="target.name">
                         <el-table :data="target.hierarchies" style="width: 100%" stripe>
                             <el-table-column  label="层级名称" width="240">
                                 <template scope="scope">
@@ -131,11 +131,11 @@
             <!-- 步骤四 -->
             <div v-if="dActive==3">
                 <el-tabs>
-                    <el-tab-pane v-for="(target, ti) in dTargets" v-if="!target.isEditor" :label="target.name">
+                    <el-tab-pane v-for="(target, ti) in dTargets" v-if="!target.isEditor" :label="target.name" :key="target.name">
                         <el-row :gutter="20">
                             <el-col :span="12">
                                 <el-collapse>
-                                    <el-collapse-item v-for="(h, hi) in target.hierarchies" v-if="!h.isEditor">
+                                    <el-collapse-item v-for="(h, hi) in target.hierarchies" v-if="!h.isEditor" :key="h.name">
                                         <template slot="title">
                                             {{h.name}}
                                         </template>
@@ -218,7 +218,7 @@
                                                                 添加至<i class="el-icon-caret-bottom el-icon--right"></i>
                                                             </el-button>
                                                             <el-dropdown-menu slot="dropdown">
-                                                                <el-dropdown-item v-for="val in scope.row._addList"
+                                                                <el-dropdown-item v-for="val in scope.row._addList" :key="val"
                                                                                   :command="ti+','+val+','+scope.$index">{{val}}</el-dropdown-item>
                                                             </el-dropdown-menu>
                                                         </el-dropdown>
@@ -639,7 +639,6 @@
                     project:this.dBase.proj
                 }
                 this.$pdr.GET("/api/podfile/latest", param, true).success((data) => {
-                    console.log(data)
                     if (data.podfile) {
                         this.dOrigin = data.podfile
                         this.dBase.baseOn = this.dOrigin.version

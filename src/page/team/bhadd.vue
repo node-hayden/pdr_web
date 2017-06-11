@@ -12,6 +12,7 @@
                                style="width: 200px">
                         <el-option
                                 v-for="item in dTeam.teams"
+                                :key="item.name"
                                 :label="item.name"
                                 :value="item.name">
                         </el-option>
@@ -256,7 +257,6 @@
                 param.team = this.dTeam.selected
                 param.base_on = this.dHierarchy.hierarchy && this.dHierarchy.hierarchy.version ? this.dHierarchy.hierarchy.version : 0
                 param.modules = this.__funcConvertModeuls()
-                console.log(param)
                 this.$pdr.POST("/api/bh/add", param, true, "提交").success(() => {
                     this.__funcClearIssue()
                     this.$confirm('提交成功，点击确定前往发布页面', '提示', {

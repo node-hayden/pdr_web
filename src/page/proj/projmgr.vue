@@ -11,6 +11,7 @@
                            @change="onTeamChange">
                     <el-option
                             v-for="item in dTeams"
+                            :key="item.name"
                             :label="item.name"
                             :value="item.name">
                     </el-option>
@@ -23,6 +24,7 @@
                            placeholder="请选择项目" @change="onProjChange">
                     <el-option
                             v-for="item in dProjs"
+                            :key="item.name"
                             :label="item.name"
                             :value="item.name">
                     </el-option>

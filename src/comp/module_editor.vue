@@ -138,7 +138,6 @@
                 this.dTemp.versions = []
             },
             onModuleChange: function (val) {
-                console.log(this.dModule)
                 this.dModule.constraint = ''
                 this.dTemp.versions = []
                 this.getVersion()

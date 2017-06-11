@@ -2,9 +2,8 @@
 import index from '../page/index.vue'
 // Setting
 import setting_menu from '../page/setting/menu.vue'
-
-// Reference
-import ref_mgr from '../page/ref/manage.vue'
+import setting_refer from '../page/setting/refer.vue'
+import setting_refer_editor from '../page/setting/refer_editor.vue'
 
 // User
 import user_login from '../page/user/login.vue'
@@ -25,6 +24,7 @@ import proj_podfileadd from '../page/proj/podfile_editor.vue'
 // Repo
 import repo_manage from '../page/repo/manage.vue'
 import repo_editor from '../page/repo/repo_editor.vue'
+import repo_search from '../page/repo/search.vue'
 
 // 配置路由
 export default [
@@ -37,8 +37,16 @@ export default [
         component: setting_menu
     },
     {
-        path: '/ref/manage',
-        component:ref_mgr,
+        path: '/setting/refer',
+        component:setting_refer,
+    },
+    {
+        path:'setting/refer/add',
+        component:setting_refer_editor,
+    },
+    {
+        path:'/setting/refer/edit/:refid',
+        component:setting_refer_editor
     },
     
     // User
@@ -100,4 +108,8 @@ export default [
         path: '/repo/edit/:reponame',
         component: repo_editor
     },
+    {
+        path: '/repo/search',
+        component: repo_search
+    }
 ]

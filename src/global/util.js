@@ -80,6 +80,13 @@ var deepCopy = function (obj, exclude) {
     return newobj;
 }
 
+var copyObj2Obj = function(from, to) {
+    if (!from || !to || (typeof from) != 'object' || (typeof to) != 'object') return
+    for (var key in to) {
+        if (from.hasOwnProperty(key)) to[key] = from[key]
+    }
+}
+
 var trimAll = function (str) {
     if (!str || (typeof str) != "string") {
         return ""
@@ -132,4 +139,5 @@ export default {
     roleName: roleName,
     roleList: roleList,
     obj2Json: obj2Json,
+    copyObj2Obj: copyObj2Obj,
 }

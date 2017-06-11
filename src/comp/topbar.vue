@@ -29,9 +29,9 @@
                      :router=true
                      :unique-opened=true
                      @select="onHandleSelect">
-                <el-submenu v-for="menu in dMenu" :index="menu.name">
+                <el-submenu v-for="menu in dMenu" :index="menu.name" :key="menu.name">
                     <template slot="title">{{menu.caption}}</template>
-                    <el-menu-item v-for="submenu in menu.sub_menus" :index="submenu.index">
+                    <el-menu-item v-for="submenu in menu.sub_menus" :index="submenu.index" :key="submenu.name">
                         {{submenu.caption}}
                     </el-menu-item>
                 </el-submenu>

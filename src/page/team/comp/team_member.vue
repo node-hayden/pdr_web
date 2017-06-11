@@ -12,8 +12,9 @@
                             <el-select size="mini" filterable v-model="scope.row.role" placeholder="选择角色">
                                 <el-option
                                         v-for="item in dRoles"
-                                        :label="item.cap"
-                                        :value="item.val">
+                                        :key="item.role"
+                                        :label="item.roleName"
+                                        :value="item.role">
                                 </el-option>
                             </el-select>
                         </template>
@@ -39,11 +40,16 @@
                 <el-table :data="dUsers" stripe
                           empty-text="暂无搜索结果"
                           border style="width: 100%"
-                          @cell-dblclick="onSearchDBClick"
+                          v-loading.body="dLoading"
                           :show-header=false>
                     <el-table-column prop="account" label="帐号">
                     </el-table-column>
-                    <el-table-column prop="name" label="名称">
+                    <el-table-column prop="name" label="名称" width="160" aligin="center">
+                    </el-table-column>
+                    <el-table-column width="80" aligin="center">
+                        <template scope="scope">
+                            <el-button type="primary" size="mini" @click="onAddUser(scope.row, scope.$index)">添加</el-button>
+                        </template>
                     </el-table-column>
                 </el-table>
             </el-col>
@@ -54,65 +60,41 @@
 <script>
     export default {
         created(){
-
+            this.__funcSetData()
+            this.dRoles = this.$util.roleList([0, 9])
         },
-        props: ["members", "agent"],
+        props: ["team"],
         data() {
             return {
-                dMembers: this.members,
-                dAgent: this.agent,
+                dMembers: null,
+                dAgent: null,
                 dSearch: "",
                 dUsers: [],
-                dRoles:[
-                    {
-                        cap:"Admin",
-                        val:3
-                    },
-                    {
-                        cap:"Developer",
-                        val:2
-                    },
-                    {
-                        cap:"Viewer",
-                        val:1
-                    }
-                ]
+                dRoles:[],
+                dLoading:false
             }
         },
-        components: {},
         watch: {
-            members(curr, old) {
-                if (curr) {
-                    var arr = []
-                    for (var i in curr) {
-                        var item = curr[i]
-                        item = this.$util.deepCopy(item)
-                        arr.push(item)
-                    }
-                    this.dMembers = arr
-                } else {
-                    this.dMembers = [];
-                }
+            team() {
+                this.__funcSetData()
             },
             agent(curr, old) {
                 this.dAgent = curr
             }
         },
-        computed: {},
         methods: {
             onSearch: function () {
-                var v = this
-                var vp = this.$root.$children[0]
-                vp.getApi("/api/user/search", {account:this.dSearch}, false, function (data) {
-                    if (data && data.errno == 0) {
-                        v.dUsers = data.users
+                this.$pdr.GET('/api/user/search', {account:this.dSearch}, false, '搜索用户').success((data) => {
+                    if (data.users) {
+                        this.dUsers = data.users
                     } else {
-                        console.log(data)
-                        v.dUsers=[]
+                        this.dUsers = []
                     }
-                }, function (status, msg) {
-
-                })
+                }).before(() => {
+                    this.dLoading = true
+                }).complete(() => {
+                    this.dLoading = false
+                }).go()
             },
             onSubmit:function () {
                 this.$confirm('确定要提交对团队成员的修改吗?', '提示', {
@@ -139,21 +121,16 @@
                     });
                 }
             },
-            onSearchDBClick:function (row) {
+            onAddUser:function (row, idx) {
                 if (!row) return
-                var vp = this.$root.$children[0]
                 if (row.account == this.dAgent) {
-                    if (vp) {
-                        vp.onToast("提示", "该用户是超级管理员，不能添加!", "red")
-                    }
+                    this.$pdr.toastError('该用户是超级管理员，不能添加!')
                     return
                 }
                 for (var i in this.dMembers) {
                     var member = this.dMembers[i]
                     if (member.account == row.account) {
-                        if (vp) {
-                            vp.onToast("提示", "该用户已存在!", "red")
-                        }
+                        this.$pdr.toastError('该用户已存在!')
                         return
                     }
                 }
@@ -164,9 +141,25 @@
                 }).then(() => {
                     row.role = 1
                     this.dMembers.push(row)
+                    this.dUsers.splice(idx, 1)
                 }).catch(() => {
 
                 });
+            },
+
+            __funcSetData() {
+                if (this.team) {
+                    this.dAgent = this.team.agent
+                    var mems = []
+                    for (var i in this.team.member) {
+                        var aMem = this.team.member[i]
+                        mems.push(this.$util.deepCopy(aMem))
+                    }
+                    this.dMembers = mems
+                } else {
+                    this.dMembers = null
+                    this.dAgent = null
+                }
             }
         }
     }
